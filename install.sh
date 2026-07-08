@@ -16,7 +16,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Tentukan lokasi install Pterodactyl (default: /var/www/pterodactyl)
+# Tentukan lokasi install Pterodactyl
 PANEL_PATH="/var/www/pterodactyl"
 
 if [ ! -d "$PANEL_PATH" ]; then
@@ -27,20 +27,15 @@ fi
 cd $PANEL_PATH
 
 echo -e "${GREEN}[1/3]${NC} Membuat backup login theme bawaan..."
-# Backup file lama biar aman kalau mau dicleanup
-if [ -f "resources/views/templates/auth/login.blade.php" ]; then
+# Backup file lama jika belum pernah di-backup sebelumnya
+if [ -f "resources/views/templates/auth/login.blade.php" ] && [ ! -f "resources/views/templates/auth/login.blade.php.bak" ]; then
     cp resources/views/templates/auth/login.blade.php resources/views/templates/auth/login.blade.php.bak
+    echo -e "${GREEN}Backup berhasil dibuat: login.blade.php.bak${NC}"
 fi
 
-echo -e "${GREEN}[2/3]${NC} Mengunduh dan menerapkan tema login premium..."
-# Ganti URL di bawah ini dengan URL file login.blade.php di GitHub kamu sendiri nanti
-# Sementara kita pakai metode cat langsung ke file target agar aman saat eksekusi shell.
-cat << 'EOF' > resources/views/templates/auth/login.blade.php
-{{-- Paste seluruh isi kode login.blade.php di atas ke dalam bagian ini jika ingin self-contained script --}}
-EOF
-
-# Note: Jika kamu mau installernya langsung narik dari github kamu, ganti baris 'cat' di atas menjadi:
-# curl -sSL https://raw.githubusercontent.com/USERNAME/REPO/main/login.blade.php -o resources/views/templates/auth/login.blade.php
+echo -e "${GREEN}[2/3]${NC} Mengunduh tema login premium dari GitHub PaxBar-APKBUG..."
+# Menarik langsung file raw dari repo testing kamu
+curl -sSL https://raw.githubusercontent.com/PaxBar-APKBUG/testing/main/login.blade.php -o resources/views/templates/auth/login.blade.php
 
 echo -e "${GREEN}[3/3]${NC} Membersihkan cache panel..."
 php artisan view:clear
